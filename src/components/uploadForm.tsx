@@ -4,6 +4,7 @@ import Button from "./shared/button";
 import { useRef, useState } from "react";
 import ReactS3Client from "react-aws-s3-typescript";
 import LoadingIcon from "./icons/loading";
+import { truncate } from "fs";
 
 const config = {
   bucketName: process.env.REACT_APP_BUCKET_NAME || "",
@@ -19,27 +20,38 @@ interface UploadFormProps {
   handleClose: (params: any) => any;
 }
 
+interface FilesProps {
+  name: string;
+  completed: boolean;
+  id: number;
+}
+
 const UploadForm = ({ handleClose }: UploadFormProps) => {
-  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState<FilesProps[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const handleClick = () => {
     inputRef.current?.click();
   };
 
-  const handleUpload = (files: { [index: number]: File }) => {
+  const handleUpload = async (files: { [index: number]: File }) => {
+    const filesToUpload: FilesProps[] = [];
+
     for (let i = 0; i < Object.keys(files).length; i++) {
-      S3Client.uploadFile(files[i], files[i].name)
+      filesToUpload.push({ name: files[i].name, completed: false, id: i });
+    }
+
+    for (let i = 0; i < filesToUpload.length; i++) {
+      await S3Client.uploadFile(files[i], files[i].name)
         .then((data) => {
-          setLoading(false);
-          handleClose(false);
-          return data;
+          filesToUpload[i] = { name: data.key, completed: true, id: i };
+          setUploading((uploading) => [...filesToUpload]);
+          console.log(data);
         })
         .catch((err) => console.error(err));
     }
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
     const fileObj = e.target.files;
     if (!fileObj) {
       return;
@@ -55,12 +67,29 @@ const UploadForm = ({ handleClose }: UploadFormProps) => {
         </button>
         <h2 className="font-bold text-2xl mb-4">Upload Your Images</h2>
 
-        {loading ? (
-          <div className="flex justify-start">
-            <span className="inline-block">loading...</span>
-            <LoadingIcon className="ml-10 mt-3" />
+        {uploading.length ? (
+          <div>
+            {uploading.map((item, index) => {
+              return (
+                <div className="flex justify-start" key={item.name + index}>
+                  <span className="inline-block">
+                    {item.name} : id_{item.id}
+                  </span>
+                  {item.completed ? (
+                    <div className="ml-10 text-emerald-500">completed</div>
+                  ) : (
+                    <div className="ml-10 text-fuchsia-500 animate-pulse flex">
+                      <span>uploading...</span>
+                      <LoadingIcon className="w-4 h-4 mt-3 ml-5" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        ) : (
+        ) : null}
+
+        {!uploading.length ? (
           <DragAndDrop handleChange={handleUpload}>
             <label className="text-center">
               <input
@@ -78,7 +107,7 @@ const UploadForm = ({ handleClose }: UploadFormProps) => {
               Upload
             </Button>
           </DragAndDrop>
-        )}
+        ) : null}
       </div>
     </div>
   );

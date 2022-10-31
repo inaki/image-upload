@@ -25,7 +25,7 @@ const App = () => {
         setImages(data.Contents);
       })
       .catch((err) => console.error(err));
-  }, [images]);
+  }, [open]);
 
   return (
     <React.Fragment>
