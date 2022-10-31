@@ -21,3 +21,9 @@ REACT_APP_ACCESS_KEY_ID='<ur_access_key>'
 REACT_APP_SECRET_ACCESS_KEY='<ur_secret_access_key>'
 REACT_APP_S3_URL='<ur_s3_url>'
 ```
+
+### Screnshots
+
+![Screen Shot 2022-10-30 at 8 00 38 PM](https://user-images.githubusercontent.com/485547/198916212-405f302c-db87-46c3-9087-b78e09831276.png)
+![Screen Shot 2022-10-30 at 8 00 46 PM](https://user-images.githubusercontent.com/485547/198916219-59bfb2f2-fde3-4089-b78f-f101aaabeadd.png)
+![Screen Shot 2022-10-30 at 8 01 19 PM](https://user-images.githubusercontent.com/485547/198916249-f5920e30-d8ca-4f12-a656-944dfbc81705.png)
